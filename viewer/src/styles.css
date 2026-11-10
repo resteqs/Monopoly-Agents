@@ -1212,6 +1212,37 @@ details.sec[open] > summary {
   background: #e5333c;
   border-color: #ff9c8f;
 }
+.fx-pasch-in i.miss {
+  position: relative;
+  border-color: #ff9c8f;
+  background: transparent;
+}
+.fx-pasch-in i.miss::before,
+.fx-pasch-in i.miss::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 11px;
+  height: 2px;
+  margin: -1px 0 0 -5.5px;
+  border-radius: 1px;
+  background: #ff9c8f;
+  transform: rotate(45deg);
+}
+.fx-pasch-in i.miss::after {
+  transform: rotate(-45deg);
+}
+@keyframes pipreset {
+  0% {
+    background: #f0c36a;
+    border-color: #f0c36a;
+  }
+  100% {
+    background: transparent;
+    border-color: var(--cream-2);
+  }
+}
 .fx-pasch-in span {
   margin-left: 4px;
 }

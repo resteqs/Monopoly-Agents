@@ -165,7 +165,7 @@ function DiceFx({ b, g }: { b: Extract<Beat, { k: 'dice' }>; g: Geo }) {
           { delay: b.at, duration: T },
         );
         const k = i ? -1 : 1,
-          o = ORIENT[vals[i]];
+          o = `rotateX(90deg) ${ORIENT[vals[i]]}`; // ORIENT brings the face to the front; rotateX(90) tips it to the top, where players read a die
         A(
           cubes[i].current,
           [
@@ -251,8 +251,8 @@ function DiceFx({ b, g }: { b: Extract<Beat, { k: 'dice' }>; g: Geo }) {
                 className="die-tilt"
                 style={{
                   transform: i
-                    ? 'rotateX(-20deg) rotateY(-24deg)'
-                    : 'rotateX(-24deg) rotateY(28deg)',
+                    ? 'rotateX(-50deg) rotateY(-24deg)'
+                    : 'rotateX(-54deg) rotateY(28deg)',
                 }}
               >
                 <div ref={cubes[i]} className="cube" style={{ width: d, height: d }}>
@@ -265,25 +265,34 @@ function DiceFx({ b, g }: { b: Extract<Beat, { k: 'dice' }>; g: Geo }) {
           ))}
         </div>
       )}
-      {!b.brief && b.pasch > 0 && (
+      {!b.brief && (b.pasch > 0 || b.miss > 0) && (
         <div
           ref={pips}
           className="fx-pasch"
           style={{ ...at({ x: home.x, y: home.y - d * 1.45 }), ...hidden }}
         >
           <div className="fx-pasch-in">
-            {[0, 1, 2].map((k) => (
-              <i
-                key={k}
-                className={k < b.pasch ? (k === 2 ? 'on red' : 'on') : ''}
-                style={
-                  k === b.pasch - 1
-                    ? { animation: `pippop 420ms ${b.at + T * 0.82}ms ${EASE.pop} both` }
-                    : undefined
-                }
-              />
-            ))}
-            <span>{b.pasch >= 3 ? '3. Pasch → Gefängnis' : `${b.pasch}. Pasch`}</span>
+            {[0, 1, 2].map((k) => {
+              const n = b.pasch || b.miss;
+              const isMiss = !b.pasch && k === n;
+              const filled = k < n;
+              const cls = isMiss ? 'miss' : filled ? (b.pasch && k === 2 ? 'on red' : 'on') : '';
+              let animation: string | undefined;
+              if (b.pasch && k === b.pasch - 1)
+                animation = `pippop 420ms ${b.at + T * 0.82}ms ${EASE.pop} both`;
+              else if (isMiss)
+                animation = `pippop ${b.swapMs}ms ${b.at + T * 0.82}ms ${EASE.pop} both`;
+              else if (!b.pasch && filled)
+                animation = `pipreset ${b.swapMs}ms ${b.at + tSwap}ms ease-out both`;
+              return <i key={k} className={cls} style={animation ? { animation } : undefined} />;
+            })}
+            <span>
+              {b.pasch
+                ? b.pasch >= 3
+                  ? '3. Pasch → Gefängnis'
+                  : `${b.pasch}. Pasch`
+                : 'kein Pasch'}
+            </span>
           </div>
         </div>
       )}

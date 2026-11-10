@@ -79,6 +79,8 @@ export type Beat =
       d1: number;
       d2: number;
       pasch: number;
+      /** doubles streak this roll just broke (0 = none) */
+      miss: number;
       util: boolean;
       brief: boolean;
       throwMs: number;
@@ -269,6 +271,7 @@ export function planStep(
             d1,
             d2,
             pasch: 0,
+            miss: 0,
             util: e.reason === 'utility_card',
             brief: true,
             throwMs: 0,
@@ -307,6 +310,10 @@ export function planStep(
             nh = DUR.numHold * S,
             f = DUR.numFade * S;
           const pasch = paschCount(st, e);
+          const miss =
+            !e.doubles && e.reason !== 'utility_card' && prev.current_player === p
+              ? prev.doubles
+              : 0;
           push({
             k: 'dice',
             at: cur,
@@ -315,6 +322,7 @@ export function planStep(
             d1,
             d2,
             pasch,
+            miss: Math.min(2, miss),
             util: e.reason === 'utility_card',
             brief: false,
             throwMs: t,
