@@ -1,4 +1,4 @@
-# Monopoly-Agents
+# Slopoly
 
 RL and LLM agents mastering the game of Monopoly (German edition, simplified rules), plus **Slopoly**, a replay viewer for watching games.
 

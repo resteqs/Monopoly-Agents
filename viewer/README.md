@@ -1,4 +1,4 @@
-# Monopoly Agents replay viewer
+# Slopoly replay viewer
 
 Vite + React + TypeScript. Builds to a single self-contained `dist/index.html`.
 
