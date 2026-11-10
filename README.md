@@ -2,6 +2,8 @@
 
 RL and LLM agents mastering the game of Monopoly (German edition, simplified rules), plus **Slopoly**, a replay viewer for watching games.
 
+![Slopoly replay viewer: board, player seats with deed cards, cash chart and event log](docs/img/slopoly.png)
+
 | Folder | What |
 |---|---|
 | [`engine/`](engine/README.md) | Python/NumPy game engine, random play, replay export |

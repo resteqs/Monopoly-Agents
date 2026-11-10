@@ -19,6 +19,12 @@ import { Rich, euro } from './format';
 /** Hidden layout check: ?debugTokens=1 puts one pawn on every space, =2 puts two (and a jailed one on the jail corner). */
 const DEBUG_TOKENS =
   typeof location !== 'undefined' ? new URLSearchParams(location.search).get('debugTokens') : null;
+/** ?step=N opens the replay at step N (handy for screenshots and sharing a moment). */
+const START_STEP = Math.max(
+  0,
+  Number(typeof location !== 'undefined' ? new URLSearchParams(location.search).get('step') : 0) ||
+    0,
+);
 function debugTokens(mode: string) {
   const out: BoardView['tokens'] = [];
   for (let sp = 0; sp < 40; sp++) {
@@ -42,7 +48,10 @@ export default function App() {
   const [replay, setReplay] = useState<Replay>(initial);
   const [source, setSource] = useState(DEMO_NAME);
   const [error, setError] = useState<string | null>(null);
-  const [pos, setPos] = useState<Pos>({ idx: 0, from: 0, animate: false, nonce: 0 });
+  const [pos, setPos] = useState<Pos>(() => {
+    const idx = Math.min(START_STEP, replay.steps.length - 1);
+    return { idx, from: idx, animate: false, nonce: 0 };
+  });
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [skipForced, setSkipForced] = useState(false);
