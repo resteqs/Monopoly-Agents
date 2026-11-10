@@ -230,6 +230,7 @@ export function planStep(
   let cur = 0,
     end = 0,
     movedOnce = false;
+  let sumAt: number | null = null;
   const push = (b: Beat) => {
     plan.beats.push(b);
     end = Math.max(end, b.at + b.dur);
@@ -332,6 +333,7 @@ export function planStep(
             fadeMs: f,
           });
           plan.diceReveal = cur + t + h * 0.5;
+          if (sumAt == null) sumAt = cur + t + h + sw; // the sum numeral appears: destination is known
           cur += t + h + sw + nh; // the next beat starts as the numeral begins to fade
           break;
         }
@@ -353,11 +355,13 @@ export function planStep(
                 ? cur + (z + 1) * hopMs
                 : cur + dur * 0.5
               : null;
-          cur += dur;
+          // outline the destination as soon as it is known (dice sum shown, or move start),
+          // so the outline tells the viewer where the pawn is heading
           if (!movedOnce) {
-            plan.hlDelay = cur;
+            plan.hlDelay = sumAt ?? cur;
             movedOnce = true;
           }
+          cur += dur;
           break;
         }
         case 'salary': {
