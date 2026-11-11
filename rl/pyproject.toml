@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "slopoly-rl"
+version = "0.1.0"
+description = "PPO agents for the Slopoly Monopoly engine (learning zone, written by the team)"
+requires-python = ">=3.11"
+dependencies = [
+    "monopoly",
+    "numpy>=1.26",
+    "torch==2.15.0",
+    "wandb==0.31.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "ruff>=0.17.4",
+]
+
+[tool.uv.sources]
+monopoly = { path = "../engine", editable = true }
+# CPU-only torch on Linux/Windows (the default PyPI wheel on Linux pulls in ~GBs of CUDA libs).
+# macOS has no CUDA build, so it uses the normal PyPI wheel (CPU + MPS).
+torch = [
+    { index = "pytorch-cpu", marker = "sys_platform != 'darwin'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["slopoly_rl"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

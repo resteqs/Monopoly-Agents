@@ -36,6 +36,7 @@ Students don't hand-write or line-review tests, so every test must earn its plac
 
 ## Commands
 - Engine tests: `cd engine && uv run pytest`
+- RL tests: `cd rl && uv sync && uv run pytest` (package `slopoly_rl`, depends on the engine as a path dependency)
 - Random game → replay: `uv run --project engine python -m monopoly.export_replay --random --seed 1 --out replays/x.replay.jsonl`
 - Benchmark: `uv run --project engine python -m monopoly.bench`
 - Viewer: `cd viewer && npm install && npm run dev` · check: `npm run typecheck && npm run build` (single file `viewer/dist/index.html`)
