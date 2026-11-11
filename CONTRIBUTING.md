@@ -65,7 +65,9 @@ Two weeks, **Wednesday to Wednesday** (our meetings), starting 2026-11-11. Anton
 ## Experiments
 RL work is experiment-driven. Use the **Experiment** issue form: hypothesis, setup (commit, config, seeds),
 metric, result, conclusion.
-- **Tracking:** every training run logs to our Weights & Biases team (setup: #1), with its full config, seed and git commit.
+- **Tracking:** every training run logs to Weights & Biases (now CoreWeave Forge, academic plan): team **`slopoly`**,
+  project **`slopoly-rl`** (`wandb.init(entity="slopoly", project="slopoly-rl")`), with its full config, seed and git
+  commit. Set `slopoly` as your default team in your W&B user settings. Setup: #1.
 - **Models:** checkpoints are W&B Artifacts (`<model>:latest`, `:best`) and are never committed to Git. Self-play opponents are referenced by artifact name in the config.
 - **Replays:** log a Slopoly replay of an evaluation game every N updates, so we can watch play improve.
 - Link the W&B run in the experiment issue's result.
