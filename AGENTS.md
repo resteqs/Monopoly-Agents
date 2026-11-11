@@ -18,6 +18,22 @@ Five students are learning RL by building PPO agents for Monopoly. Getting thing
 
 **Infrastructure zone** (engine rules, viewer, tooling, tests, CI): write code normally. A human reviews every PR.
 
+## Tests (you write them; keep them few)
+Students don't hand-write or line-review tests, so every test must earn its place.
+- Per component, **3–5 known-answer tests at its public interface**. Don't test internals or mock private code.
+- Expected values come from a hand calculation, the paper or the spec, **never from the code under test** (no tautological tests).
+- The PPO pipeline as a whole is tested with **probe environments** (Andy Jones, "Debugging RL Systems"),
+  each adding one piece: constant reward → obs-dependent reward → delayed reward → action-dependent → both.
+- One smoke test: a single training iteration on real Monopoly runs without crashing.
+- In `area:rl` PRs, leave one tiny test case for the author to check by hand and name it in the PR description.
+
+## `for-ai` issues
+- `for-ai` marks work delegated to an agent (viewer bugs, tooling, chores). Never put it on `area:rl` work.
+- A human starts the work by asking you to do the issue. Follow the normal workflow (branch, PR, `Closes #n`); a human reviews.
+- When the user asks you to file a bug or chore for later, create it with `gh issue create` and the `for-ai` label.
+- When your current task leaves the user waiting or is done, you may offer once to work on open `for-ai` issues
+  (`gh issue list --label for-ai`) in a parallel session. Don't start without a yes.
+
 ## Commands
 - Engine tests: `cd engine && uv run pytest`
 - Random game → replay: `uv run --project engine python -m monopoly.export_replay --random --seed 1 --out replays/x.replay.jsonl`
@@ -35,5 +51,6 @@ Five students are learning RL by building PPO agents for Monopoly. Getting thing
 - Workflow: GitHub issue → branch `<type>/<issue#>-<slug>` → small PR with "Closes #n" and a Conventional
   Commit title (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `exp:`). Squash merge. Never push to `main`.
 - Issue tracker: GitHub Issues (`gh` CLI). Labels: `area:engine|viewer|rl|docs`, `type:task|bug|experiment`,
-  `good first issue`, `blocked`. With `to-tickets`, publish to GitHub and apply the `type:task` label instead of `ready-for-agent`.
+  `good first issue`, `blocked`, `for-ai`. RL tickets use the guided **RL task** form (Concept, Read first, Guiding
+  questions, Pair partner): fill every field when drafting one. With `to-tickets`, publish to GitHub and apply the `type:task` label instead of `ready-for-agent`.
 - Planning: use `grill-me` before larger designs and `to-tickets` to split them. For bugs use `diagnosing-bugs`.

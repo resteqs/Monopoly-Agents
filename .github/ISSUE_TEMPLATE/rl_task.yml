@@ -1,0 +1,66 @@
+name: RL task
+description: Learning-zone work (PPO, network, reward, observation, evaluation). Guided, with reading and questions.
+labels: ["type:task", "area:rl"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: One sentence. What works afterwards?
+    validations:
+      required: true
+  - type: textarea
+    id: concept
+    attributes:
+      label: Concept
+      description: The RL idea you will be able to explain at the sprint meeting afterwards.
+    validations:
+      required: true
+  - type: textarea
+    id: reading
+    attributes:
+      label: Read first
+      description: 1–3 links with the exact section, e.g. "Spinning Up, PPO → Key Equations".
+      value: |
+        - 
+    validations:
+      required: true
+  - type: textarea
+    id: questions
+    attributes:
+      label: Guiding questions
+      description: 3–5 questions your design must answer. Answer them in the PR description.
+      value: |
+        1. 
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Suggested steps
+      description: A rough order of work, not a solution.
+  - type: textarea
+    id: interface
+    attributes:
+      label: Interface
+      description: Which section of docs/rl_interfaces.md this reads from or provides.
+  - type: input
+    id: pair
+    attributes:
+      label: Pair partner
+      description: Owner of the connected component. Coordinate with them and ask them to review.
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      value: |
+        - [ ] Known-answer tests pass (Claude writes them; you check one by hand and name it in the PR)
+        - [ ] Guiding questions answered in the PR description
+        - [ ] Reviewed by the pair partner
+    validations:
+      required: true
+  - type: textarea
+    id: blocked
+    attributes:
+      label: Blocked by
+      value: none
