@@ -16,6 +16,8 @@ Based on [GitHub Flow](https://docs.github.com/en/get-started/using-github/githu
 
 1. **Every piece of work starts as an issue** (forms: RL task, Infrastructure task, Bug, Experiment). A good issue is
    [INVEST](https://en.wikipedia.org/wiki/INVEST_(mnemonic)): small (≤ 1–3 days), independent, with testable acceptance criteria.
+   Dependencies are GitHub **"Blocked by" relationships** (issue sidebar → Relationships), not just text, so they show
+   on the board. Start nothing that is still blocked.
 2. **Board** (GitHub Projects): Todo → In progress → In review → Done. **At most 2 items in progress per person.**
    Assign yourself before starting.
 3. **Branch** from `main`: `<type>/<issue#>-<slug>`, e.g. `feat/42-mortgage-rules`. Keep it short-lived (merge within days).

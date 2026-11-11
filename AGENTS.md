@@ -53,4 +53,5 @@ Students don't hand-write or line-review tests, so every test must earn its plac
 - Issue tracker: GitHub Issues (`gh` CLI). Labels: `area:engine|viewer|rl|docs`, `type:task|bug|experiment`,
   `good first issue`, `blocked`, `for-ai`. RL tickets use the guided **RL task** form (Concept, Read first, Guiding
   questions, Pair partner): fill every field when drafting one. With `to-tickets`, publish to GitHub and apply the `type:task` label instead of `ready-for-agent`.
+- Record dependencies as native relationships (`gh issue edit <n> --add-blocked-by <m>`), not only as text in the body.
 - Planning: use `grill-me` before larger designs and `to-tickets` to split them. For bugs use `diagnosing-bugs`.

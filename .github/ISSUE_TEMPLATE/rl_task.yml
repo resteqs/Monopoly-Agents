@@ -63,4 +63,5 @@ body:
     id: blocked
     attributes:
       label: Blocked by
+      description: Issues that must be finished first (e.g. #12), or "none". After creating the issue, also add each one under **Relationships → Blocked by** in the sidebar, so it shows as a badge on the board. Text alone gets lost.
       value: none
