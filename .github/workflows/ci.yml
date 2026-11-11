@@ -41,6 +41,19 @@ jobs:
       - run: uv run pytest
         working-directory: engine
 
+  rl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: rl/uv.lock
+      - name: Format check (Python)
+        run: uvx ruff@0.17.4 format --check rl
+      - run: uv run pytest
+        working-directory: rl
+
   viewer:
     runs-on: ubuntu-latest
     steps:

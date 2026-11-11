@@ -5,6 +5,7 @@ How we (5 students) work together. AI-agent rules live in [AGENTS.md](AGENTS.md)
 ## Setup
 ```bash
 cd engine && uv sync && uv run pytest     # Python engine
+cd rl && uv sync && uv run pytest         # RL code (installs the engine, CPU torch, wandb)
 cd viewer && npm install && npm run dev   # replay viewer
 ```
 Agent skills (`mentoring-juniors`, `grill-me`, `grilling`, `to-tickets`, `diagnosing-bugs`) are committed in
@@ -26,7 +27,7 @@ Based on [GitHub Flow](https://docs.github.com/en/get-started/using-github/githu
    ([Google review guide](https://google.github.io/eng-practices/review/)), not only when it's perfect.
 6. **Learning gate**: as the author you must be able to explain every line of your PR, including the AI-written parts.
    Reviewers may ask "why does this work?" in the review.
-7. **Squash merge**, delete the branch. CI (`pr-title`, `engine`, `viewer`) must be green.
+7. **Squash merge**, delete the branch. CI (`pr-title`, `engine`, `rl`, `viewer`) must be green.
 
 ## Commit / PR title convention
 We use [Conventional Commits](https://www.conventionalcommits.org/) (derived from the Angular convention):
