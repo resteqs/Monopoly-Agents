@@ -23,7 +23,9 @@ Based on [GitHub Flow](https://docs.github.com/en/get-started/using-github/githu
    Assign yourself before starting.
 3. **Branch** from `main`: `<type>/<issue#>-<slug>`, e.g. `feat/42-mortgage-rules`. Keep it short-lived (merge within days).
 4. **Pull request**: small and focused, title in [Conventional Commits](https://www.conventionalcommits.org/) form
-   (`feat: add mortgages`), body says `Closes #42`.
+   (`feat: add mortgages`), body says `Closes #42`. The board follows the PR, so don't drag cards by hand:
+   open the PR as a **draft** early (issue → In Progress), click **Ready for review** when done (→ In Review),
+   merge (→ Done). Without `Closes #n` the issue doesn't move.
 5. **Review**: `main` is protected. Every PR needs **1 approval from someone other than the author**, and new pushes
    dismiss old approvals. Review within 24 h. Approve when the PR improves the code overall
    ([Google review guide](https://google.github.io/eng-practices/review/)), not only when it's perfect.

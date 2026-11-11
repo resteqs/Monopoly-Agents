@@ -1,0 +1,84 @@
+name: Board status
+# Moves the issues a PR closes ("Closes #n") on the Slopoly project board:
+#   ready for review / opened as non-draft -> In Review
+#   converted to draft                    -> In Progress
+# "PR linked -> In Progress" and "closed/merged -> Done" are built-in project workflows.
+# Needs the PROJECT_TOKEN secret (classic PAT with the `project` scope): the default
+# GITHUB_TOKEN cannot edit a user-owned project.
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, converted_to_draft]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: board-status-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  PROJECT_OWNER: resteqs
+  PROJECT_NUMBER: 6
+
+jobs:
+  sync:
+    # Secrets are not available on PRs from forks; skip those.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Move linked issues
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          IS_DRAFT: ${{ github.event.pull_request.draft }}
+          ACTION: ${{ github.event.action }}
+        run: |
+          set -euo pipefail
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::warning::PROJECT_TOKEN secret is missing; board status not updated."
+            exit 0
+          fi
+          if [ "$IS_DRAFT" = "true" ]; then target="In Progress"; else target="In Review"; fi
+
+          # The built-in "PR linked -> In Progress" workflow runs when the PR is opened.
+          # Wait so a non-draft PR ends in In Review rather than racing it.
+          if [ "$ACTION" = "opened" ] || [ "$ACTION" = "reopened" ]; then sleep 30; fi
+
+          export target
+          read -r project_id field_id option_id < <(gh api graphql \
+            -f owner="$PROJECT_OWNER" -F number="$PROJECT_NUMBER" -f query='
+              query($owner: String!, $number: Int!) {
+                user(login: $owner) { projectV2(number: $number) {
+                  id
+                  field(name: "Status") { ... on ProjectV2SingleSelectField { id options { id name } } }
+                } }
+              }' --jq '.data.user.projectV2 as $p
+                | [$p.id, $p.field.id, ($p.field.options[] | select(.name == env.target) | .id)] | @tsv')
+
+          items=$(gh api graphql -f owner="${REPO%/*}" -f repo="${REPO#*/}" -F pr="$PR" -f query='
+            query($owner: String!, $repo: String!, $pr: Int!) {
+              repository(owner: $owner, name: $repo) { pullRequest(number: $pr) {
+                closingIssuesReferences(first: 10) { nodes {
+                  number
+                  projectItems(first: 20) { nodes { id project { id } } }
+                } }
+              } }
+            }' --jq ".data.repository.pullRequest.closingIssuesReferences.nodes[]
+                     | . as \$i | .projectItems.nodes[] | select(.project.id == \"$project_id\")
+                     | \"\(\$i.number) \(.id)\"")
+
+          if [ -z "$items" ]; then
+            echo "No linked issues on the board (does the PR body say 'Closes #n'?)."
+            exit 0
+          fi
+          while read -r issue item_id; do
+            gh api graphql -f p="$project_id" -f i="$item_id" -f f="$field_id" -f o="$option_id" -f query='
+              mutation($p: ID!, $i: ID!, $f: ID!, $o: String!) {
+                updateProjectV2ItemFieldValue(input: {projectId: $p, itemId: $i, fieldId: $f,
+                  value: {singleSelectOptionId: $o}}) { projectV2Item { id } }
+              }' > /dev/null
+            echo "#$issue -> $target"
+          done <<< "$items"
