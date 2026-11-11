@@ -38,7 +38,7 @@ Zur Prüfungsleistung anmelden
 Termin 11.11. um 11:00 Uhr weiterleiten (Raphael)
 
 ---
-# Meeting 10.11.2026 11Uhr Raphael, Jan, Daniil
+# Meeting 10.11.2026 11 Uhr Raphael, Jan, Daniil
 
 # Game Choice: Monopoly
 
