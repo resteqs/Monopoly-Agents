@@ -177,13 +177,16 @@ function DiceFx({ b, g }: { b: Extract<Beat, { k: 'dice' }>; g: Geo }) {
           { delay: b.at, duration: T, easing: 'cubic-bezier(.15,.55,.25,1)' },
         );
       });
+      // one timeline for the whole Pasch counter (pips, X and label share this container): it appears with the
+      // dice result (a miss: once the dice have settled) and leaves as one piece at pipOut
+      const inAt = b.miss ? T : T * 0.8;
       A(
         pips.current,
         [
           { opacity: 0, offset: 0 },
-          { opacity: 0, offset: (T * 0.8) / all },
-          { opacity: 1, offset: (T * 0.8 + 140) / all },
-          { opacity: 1, offset: tNum / all },
+          { opacity: 0, offset: inAt / all },
+          { opacity: 1, offset: (inAt + 140) / all },
+          { opacity: 1, offset: b.pipOut / all },
           { opacity: 0, offset: 1 },
         ],
         { delay: b.at, duration: all },
@@ -281,9 +284,7 @@ function DiceFx({ b, g }: { b: Extract<Beat, { k: 'dice' }>; g: Geo }) {
               if (b.pasch && k === b.pasch - 1)
                 animation = `pippop 420ms ${b.at + T * 0.82}ms ${EASE.pop} both`;
               else if (isMiss)
-                animation = `pippop ${b.swapMs}ms ${b.at + T * 0.82}ms ${EASE.pop} both`;
-              else if (!b.pasch && filled)
-                animation = `pipreset ${b.swapMs}ms ${b.at + tSwap}ms ease-out both`;
+                animation = `pippop ${b.swapMs}ms ${b.at + T + b.holdMs * 0.5}ms ${EASE.pop} both`;
               return <i key={k} className={cls} style={animation ? { animation } : undefined} />;
             })}
             <span>
@@ -694,7 +695,7 @@ function CardFx({ b, g }: { b: Extract<Beat, { k: 'card' }>; g: Geo }) {
   );
 }
 
-/* ---------- stamps: jail bars, "FREI", "BANKROTT" ---------- */
+/* ---------- stamps: "GEFÄNGNIS" (bars drop), "BANKROTT"; and the jail release chip ---------- */
 
 function Stamp({
   p,
@@ -706,7 +707,6 @@ function Stamp({
   text,
   sub,
   size,
-  dir,
   bars,
 }: {
   p: Pt;
@@ -718,7 +718,6 @@ function Stamp({
   text: string;
   sub?: string;
   size: number;
-  dir?: 'down' | 'up';
   bars?: Pt;
 }) {
   const el = useRef<HTMLDivElement>(null),
@@ -733,32 +732,24 @@ function Stamp({
         { opacity: 1, transform: 'scale(1) rotate(-9deg)', offset: 0.85 },
         { opacity: 0, transform: 'scale(1) rotate(-9deg)', offset: 1 },
       ],
-      { delay: delay + (dir ? dur * 0.12 : 0), duration: dur * (dir ? 0.88 : 1) },
+      { delay: delay + (bars ? dur * 0.12 : 0), duration: dur * (bars ? 0.88 : 1) },
     );
-    if (dir) {
-      const T = dur;
+    if (bars) {
       A(
         bar.current,
-        dir === 'down'
-          ? [
-              { opacity: 1, transform: 'scaleY(0)', offset: 0 },
-              { opacity: 1, transform: 'scaleY(1)', offset: 0.22, easing: EASE.pop },
-              { opacity: 1, transform: 'scaleY(1)', offset: 0.85 },
-              { opacity: 0, transform: 'scaleY(1)', offset: 1 },
-            ]
-          : [
-              { opacity: 1, transform: 'translateY(0)', offset: 0 },
-              { opacity: 1, transform: 'translateY(0)', offset: 0.1 },
-              { opacity: 1, transform: 'translateY(-105%)', offset: 0.4, easing: EASE.in },
-              { opacity: 0, transform: 'translateY(-105%)', offset: 1 },
-            ],
-        { delay, duration: T },
+        [
+          { opacity: 1, transform: 'scaleY(0)', offset: 0 },
+          { opacity: 1, transform: 'scaleY(1)', offset: 0.22, easing: EASE.pop },
+          { opacity: 1, transform: 'scaleY(1)', offset: 0.85 },
+          { opacity: 0, transform: 'scaleY(1)', offset: 1 },
+        ],
+        { delay, duration: dur },
       );
     }
   });
   return (
     <>
-      {dir && bars && (
+      {bars && (
         <div
           ref={bar}
           className="fx-bars"
@@ -786,8 +777,7 @@ function JailFx({ b, g }: { b: Extract<Beat, { k: 'stamp' }>; g: Geo }) {
     k = r.w / CORNER;
   const cell = { x: r.x + 113 * k + g.bw * 0.035, y: r.y + 70 * k - g.bw * 0.03 }; // stamp leans into the board so it is not cut off
   const bars = { x: r.x + 113 * k, y: r.y + 70 * k };
-  const size = Math.max(15, g.bw * 0.021);
-  return b.kind === 'jail' ? (
+  return (
     <Stamp
       p={cell}
       bars={bars}
@@ -798,23 +788,38 @@ function JailFx({ b, g }: { b: Extract<Beat, { k: 'stamp' }>; g: Geo }) {
       tone="bad"
       text="GEFÄNGNIS"
       sub={b.sub}
-      size={size}
-      dir="down"
+      size={Math.max(15, g.bw * 0.021)}
     />
-  ) : (
-    <Stamp
-      p={cell}
-      bars={bars}
-      w={138 * k}
-      h={140 * k}
-      delay={b.at}
-      dur={b.dur}
-      tone="ok"
-      text="FREI"
-      sub={b.sub ? `durch ${b.sub}` : undefined}
-      size={size}
-      dir="up"
-    />
+  );
+}
+
+/** Small chip beside the jail corner saying how the pawn got out; the pawn then steps onto the visiting strip. */
+function FreeFx({ b, g }: { b: Extract<Beat, { k: 'free' }>; g: Geo }) {
+  const r = tileRect(g, 10);
+  const el = useRef<HTMLDivElement>(null);
+  const inMs = Math.min(300, b.dur * 0.25);
+  const outMs = b.dur * 0.25;
+  useWaapi((A) => {
+    A(
+      el.current,
+      [
+        { opacity: 0, transform: 'translateY(6px)', offset: 0 },
+        { opacity: 1, transform: 'translateY(0)', offset: inMs / b.dur, easing: EASE.out },
+        { opacity: 1, transform: 'translateY(0)', offset: 1 - outMs / b.dur },
+        { opacity: 0, transform: 'translateY(0)', offset: 1 },
+      ],
+      { delay: b.at, duration: b.dur },
+    );
+  });
+  // anchored at the corner's inner diagonal, on the green centre, clear of the corner art
+  return (
+    <div
+      ref={el}
+      className="fx-free"
+      style={{ ...at({ x: r.x + r.w + 10, y: r.y - 22 }), ...hidden }}
+    >
+      <div className="fx-free-in">{b.label}</div>
+    </div>
   );
 }
 
@@ -830,6 +835,8 @@ function BeatView({ b, g, plan }: { b: Beat; g: Geo; plan: Plan }) {
       return <CardFx b={b} g={g} />;
     case 'stamp':
       return <JailFx b={b} g={g} />;
+    case 'free':
+      return <FreeFx b={b} g={g} />;
     case 'bankrupt': {
       const p = g.seat[b.player] ?? centre(g);
       return (

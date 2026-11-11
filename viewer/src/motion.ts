@@ -41,11 +41,16 @@ export const DUR = {
   cardHold: 1500,
   cardExit: 480,
   stamp: 1000,
+  freeIn: 380,
+  freeOut: 520,
   bankrupt: 1000,
   overLead: 500,
   beat: 260,
   idle: 460,
 };
+
+/** how long the "kein Pasch" counter stays complete (gold pips + X) at 1x */
+const PIP_HOLD = 600;
 
 export type MotionMode = 'full' | 'instant';
 
@@ -88,6 +93,8 @@ export type Beat =
       swapMs: number;
       numHold: number;
       fadeMs: number;
+      /** ms (from the beat start) at which the Pasch counter starts to fade out */
+      pipOut: number;
     }
   | {
       k: 'salary';
@@ -124,7 +131,8 @@ export type Beat =
       hold: number;
       exit: number;
     }
-  | { k: 'stamp'; at: number; dur: number; player: number; kind: 'jail' | 'free'; sub: string }
+  | { k: 'stamp'; at: number; dur: number; player: number; kind: 'jail'; sub: string }
+  | { k: 'free'; at: number; dur: number; player: number; label: string }
   | { k: 'bankrupt'; at: number; dur: number; player: number }
   | { k: 'over'; at: number; dur: number };
 
@@ -141,6 +149,8 @@ export interface Plan {
   s: number;
   beats: Beat[];
   hops: Hop[];
+  /** moments a jailed pawn steps out of the cell onto the visiting strip */
+  free: Hop[];
   /** ms until the step's choreography is done, including a short beat before the next step */
   total: number;
   /** ms until the last effect has finished (can exceed total, e.g. a card still leaving) */
@@ -189,6 +199,7 @@ export const noteCount = (amount: number) =>
 /** Card holds longer at slow speeds (reading time), shorter when fast. */
 export const cardHold = (speed: number) => DUR.cardHold * Math.pow(1 / speed, 0.5);
 
+const JAIL_FINE = 50;
 const isJailFree = (label: string | null) => !!label && /Gefängnis frei/i.test(label);
 
 /** Consecutive doubles shown on the Pasch counter for the dice in this step. */
@@ -215,6 +226,7 @@ export function planStep(
     s: S,
     beats: [],
     hops: [],
+    free: [],
     total: 0,
     end: 0,
     cash: {},
@@ -280,6 +292,7 @@ export function planStep(
             swapMs: 0,
             numHold: 280,
             fadeMs: 240,
+            pipOut: 0,
           });
         } else if (e.type === 'card') {
           const c = card(e);
@@ -315,15 +328,21 @@ export function planStep(
             !e.doubles && e.reason !== 'utility_card' && prev.current_player === p
               ? prev.doubles
               : 0;
+          const miss2 = Math.min(2, miss);
+          // Pasch counter: a missed streak shows its X right after the dice settle, holds, then everything fades together
+          const pipOut =
+            miss2 > 0
+              ? Math.max(t + h * 0.5 + sw + PIP_HOLD * S, t + h + sw + nh)
+              : t + h + sw + nh;
           push({
             k: 'dice',
             at: cur,
-            dur: t + h + sw + nh + f,
+            dur: pipOut + f,
             player: p,
             d1,
             d2,
             pasch,
-            miss: Math.min(2, miss),
+            miss: miss2,
             util: e.reason === 'utility_card',
             brief: false,
             throwMs: t,
@@ -331,6 +350,7 @@ export function planStep(
             swapMs: sw,
             numHold: nh,
             fadeMs: f,
+            pipOut,
           });
           plan.diceReveal = cur + t + h * 0.5;
           if (sumAt == null) sumAt = cur + t + h + sw; // the sum numeral appears: destination is known
@@ -459,24 +479,45 @@ export function planStep(
           cur += slide + flip + hold * 0.55;
           break;
         }
-        case 'jail':
-        case 'jail_release': {
-          const jail = e.type === 'jail';
-          const how: Record<string, string> = {
-            doubles: 'Pasch',
-            fine: 'Kaution',
-            forced_fine: 'Kaution',
-            card: 'Karte',
-          };
+        case 'jail': {
           const why: Record<string, string> = {
             three_doubles: '3. Pasch',
             go_to_jail: 'Gehe ins Gefängnis',
             card: 'Karte',
           };
-          const sub = jail ? (why[String(e.reason)] ?? '') : (how[String(e.how)] ?? '');
           const dur = DUR.stamp * S;
-          push({ k: 'stamp', at: cur, dur, player: p, kind: jail ? 'jail' : 'free', sub });
+          push({
+            k: 'stamp',
+            at: cur,
+            dur,
+            player: p,
+            kind: 'jail',
+            sub: why[String(e.reason)] ?? '',
+          });
           cur += dur * 0.6;
+          break;
+        }
+        case 'jail_release': {
+          // label chip -> (bail: the 50 M note flies to the bank) -> the pawn steps out of the cell
+          const how = String(e.how);
+          const label =
+            how === 'doubles'
+              ? 'Frei – Pasch'
+              : how === 'card'
+                ? 'Frei – Karte'
+                : `Frei – ${JAIL_FINE} M Kaution`;
+          const start = cur;
+          cur += DUR.freeIn * S;
+          const j = evs.findIndex(
+            (x, jj) => jj > i && !used.has(jj) && x.type === 'cash' && x.reason === 'jail_fine',
+          );
+          if (j >= 0) {
+            used.add(j);
+            cur += notes({ seat: p }, 'bank', Math.abs(num(evs[j].delta, -JAIL_FINE)), cur) * 0.85;
+          }
+          plan.free.push({ player: p, space: 10, at: cur });
+          cur += hopMs;
+          push({ k: 'free', at: start, dur: cur - start + DUR.freeOut * S, player: p, label });
           break;
         }
         case 'build':

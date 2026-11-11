@@ -1233,16 +1233,6 @@ details.sec[open] > summary {
 .fx-pasch-in i.miss::after {
   transform: rotate(-45deg);
 }
-@keyframes pipreset {
-  0% {
-    background: #f0c36a;
-    border-color: #f0c36a;
-  }
-  100% {
-    background: transparent;
-    border-color: var(--cream-2);
-  }
-}
 .fx-pasch-in span {
   margin-left: 4px;
 }
@@ -1491,7 +1481,24 @@ details.sec[open] > summary {
   color: #111;
 }
 
-/* stamps: jail bars, FREI, BANKROTT */
+/* jail release chip: same pill as the Pasch counter */
+.fx-free-in {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(0, -50%);
+  padding: 5px 12px;
+  background: rgba(38, 48, 42, 0.94);
+  color: var(--cream);
+  border-radius: 999px;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* stamps: jail bars, BANKROTT */
 .fx-stamp {
   position: fixed;
   translate: -50% -50%;
