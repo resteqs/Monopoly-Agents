@@ -31,3 +31,28 @@ export function useTokenAnim(steps: Step[], pos: Pos, plan: Plan | null): number
   }, [pos.nonce]); // eslint-disable-line react-hooks/exhaustive-deps
   return disp;
 }
+
+/** Players still shown inside the jail cell while their release plays; they step out onto the visiting strip at the planned moment. */
+export function useJailHold(plan: Plan | null): Set<number> {
+  const [done, setDone] = useState<{ nonce: number; ps: number[] }>({ nonce: -1, ps: [] });
+  const nonce = plan?.nonce;
+  useEffect(() => {
+    if (!plan || plan.mode !== 'full' || !plan.free.length) return;
+    const timers = plan.free.map((f) =>
+      window.setTimeout(
+        () =>
+          setDone((d) => ({
+            nonce: plan.nonce,
+            ps: [...(d.nonce === plan.nonce ? d.ps : []), f.player],
+          })),
+        f.at,
+      ),
+    );
+    return () => timers.forEach((t) => window.clearTimeout(t));
+  }, [nonce]); // eslint-disable-line react-hooks/exhaustive-deps
+  const held = new Set<number>();
+  if (plan && plan.mode === 'full')
+    for (const f of plan.free)
+      if (!(done.nonce === plan.nonce && done.ps.includes(f.player))) held.add(f.player);
+  return held;
+}

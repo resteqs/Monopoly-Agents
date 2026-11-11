@@ -5,7 +5,7 @@ import { SIZE, placement, spaces, type BoardView } from './boardData';
 import { DEMO_NAME, DEMO_TEXT, SAMPLE_NAME, SAMPLE_TEXT } from './demo';
 import { cardInfo, describeStep, pname, psub } from './describe';
 import { Replay, ReplayError, highlightSpace, parseReplay, turnStarts } from './replay';
-import { PLAYER_COLORS, useTokenAnim } from './hooks';
+import { PLAYER_COLORS, useJailHold, useTokenAnim } from './hooks';
 import { DUR, HOP_MS, motionMode, planStep, useReducedMotion, type Pos } from './motion';
 import Fx from './Fx';
 import { Summary } from './Summary';
@@ -291,6 +291,7 @@ export default function App() {
   }, [loadFile]);
 
   const disp = useTokenAnim(steps, pos, plan);
+  const jailHold = useJailHold(activePlan);
 
   const tileRect = useCallback((space: number) => {
     const el = boardRef.current;
@@ -320,7 +321,10 @@ export default function App() {
                 {
                   player: i,
                   space: disp[i] ?? p.position,
-                  inJail: p.jail_turns > 0 && p.position === 10 && (disp[i] ?? p.position) === 10,
+                  inJail:
+                    (p.jail_turns > 0 || jailHold.has(i)) &&
+                    p.position === 10 &&
+                    (disp[i] ?? p.position) === 10,
                 },
               ],
         ),
