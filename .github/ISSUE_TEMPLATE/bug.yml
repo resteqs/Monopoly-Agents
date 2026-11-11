@@ -1,0 +1,24 @@
+name: Bug
+description: Something behaves differently from the rules or the spec
+labels: ["type:bug"]
+body:
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Ideally a seed + action list, a replay file, or a failing test.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs. actual
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [engine, viewer, rl, docs]
+    validations:
+      required: true

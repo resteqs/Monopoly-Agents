@@ -1,0 +1,7 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "viewer-dist", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "4173", "-d", "viewer/dist"], "port": 4173 },
+    { "name": "viewer-dev", "runtimeExecutable": "npm", "runtimeArgs": ["--prefix", "viewer", "run", "dev", "--", "--port", "5173"], "port": 5173 }
+  ]
+}

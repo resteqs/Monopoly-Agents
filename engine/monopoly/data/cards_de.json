@@ -1,0 +1,39 @@
+{
+  "_comment": "Effects: move_to {space, collect_go}, move_by {steps}, nearest {kind: station|utility} (pays 2x station rent / 10x dice), go_to_jail, jail_free_card, cash {amount} (+ collect, - pay), cash_each_player {amount} (+ collect from each, - pay each), repairs {house, hotel}. Labels are our own short paraphrases. verified=false: inferred from the international deck, check against a physical German deck.",
+  "chance": [
+    { "id": "C01", "label": "Du kommst aus dem Gefängnis frei", "effect": "jail_free_card" },
+    { "id": "C02", "label": "Gehe direkt ins Gefängnis", "effect": "go_to_jail" },
+    { "id": "C03", "label": "Rücke vor bis auf Los", "effect": "move_to", "space": 0, "collect_go": true },
+    { "id": "C04", "label": "Gehe 3 Felder zurück", "effect": "move_by", "steps": -3 },
+    { "id": "C05", "label": "Rücke vor zum nächsten Bahnhof", "effect": "nearest", "kind": "station" },
+    { "id": "C06", "label": "Rücke vor zum nächsten Bahnhof", "effect": "nearest", "kind": "station", "verified": false, "note": "only one 'nearest station' card confirmed (de.wikipedia); second one is from the international deck" },
+    { "id": "C07", "label": "Rücke vor zum nächsten Werk", "effect": "nearest", "kind": "utility", "verified": false, "note": "exists in the current edition, but its deck (Ereignis vs. Gemeinschaft) is unconfirmed" },
+    { "id": "C08", "label": "Ausflug zum Südbahnhof", "effect": "move_to", "space": 5, "collect_go": true },
+    { "id": "C09", "label": "Rücke vor bis zur Seestraße", "effect": "move_to", "space": 11, "collect_go": true },
+    { "id": "C10", "label": "Rücke vor bis zum Opernplatz", "effect": "move_to", "space": 24, "collect_go": true },
+    { "id": "C11", "label": "Rücke vor bis zur Schlossallee", "effect": "move_to", "space": 39, "collect_go": true },
+    { "id": "C12", "label": "Bausparvertrag wird fällig: +150", "effect": "cash", "amount": 150 },
+    { "id": "C13", "label": "Dividende: +50", "effect": "cash", "amount": 50, "verified": false, "note": "Euro 2002-2013 edition only; discontinued in the current edition, replacement card unknown" },
+    { "id": "C14", "label": "Strafzettel: −15", "effect": "cash", "amount": -15 },
+    { "id": "C15", "label": "Vorstandsvorsitz: zahle jedem Spieler 50", "effect": "cash_each_player", "amount": -50 },
+    { "id": "C16", "label": "Renovierung: 25 je Haus, 100 je Hotel", "effect": "repairs", "house": 25, "hotel": 100 }
+  ],
+  "community": [
+    { "id": "G01", "label": "Du kommst aus dem Gefängnis frei", "effect": "jail_free_card" },
+    { "id": "G02", "label": "Gehe direkt ins Gefängnis", "effect": "go_to_jail" },
+    { "id": "G03", "label": "Rücke vor bis auf Los", "effect": "move_to", "space": 0, "collect_go": true },
+    { "id": "G04", "label": "Bankirrtum zu deinen Gunsten: +200", "effect": "cash", "amount": 200 },
+    { "id": "G05", "label": "Erbschaft: +100", "effect": "cash", "amount": 100 },
+    { "id": "G06", "label": "Lebensversicherung: +100", "effect": "cash", "amount": 100 },
+    { "id": "G07", "label": "Urlaubsgeld: +100", "effect": "cash", "amount": 100 },
+    { "id": "G08", "label": "Aktienverkauf: +50", "effect": "cash", "amount": 50 },
+    { "id": "G09", "label": "Beratungshonorar: +25", "effect": "cash", "amount": 25 },
+    { "id": "G10", "label": "Steuerrückzahlung: +20", "effect": "cash", "amount": 20 },
+    { "id": "G11", "label": "Schönheitswettbewerb: +10", "effect": "cash", "amount": 10 },
+    { "id": "G12", "label": "Geburtstag: +10 von jedem Spieler", "effect": "cash_each_player", "amount": 10 },
+    { "id": "G13", "label": "Krankenhausgebühren: −100", "effect": "cash", "amount": -100 },
+    { "id": "G14", "label": "Arztkosten: −50", "effect": "cash", "amount": -50 },
+    { "id": "G15", "label": "Schulgeld: −50", "effect": "cash", "amount": -50 },
+    { "id": "G16", "label": "Straßenreparatur: 40 je Haus, 115 je Hotel", "effect": "repairs", "house": 40, "hotel": 115 }
+  ]
+}

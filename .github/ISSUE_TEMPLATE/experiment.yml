@@ -1,0 +1,34 @@
+name: Experiment
+description: A training run or comparison that tests one hypothesis
+labels: ["type:experiment", "area:rl"]
+body:
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Hypothesis
+      description: "If we change X, then Y improves, because Z."
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Setup
+      description: Commit, config/hyperparameters, opponent pool, number of seeds, compute budget.
+    validations:
+      required: true
+  - type: input
+    id: metric
+    attributes:
+      label: Metric
+      description: e.g. win rate vs. RandomBot over 1,000 games, mean game length
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Result (fill in after the run)
+      description: Numbers, plots, link to the run, a replay file of an interesting game.
+  - type: textarea
+    id: conclusion
+    attributes:
+      label: Conclusion and next step
