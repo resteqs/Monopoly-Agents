@@ -110,3 +110,79 @@ Termin 11.11. um 11:00 Uhr weiterleiten (Raphael)
 
 - Available GPUs: Raphael’s 4070 Ti Super (16 GB VRAM), Antoni’s 2080 Super
   - Antoni’s machine can run training (separate room, always-on); split
+
+---
+# Projekt-Überblick: Monopoly RL-Agents
+
+- Ziel: Reinforcement-Learning-Agents für Monopoly trainieren
+- Algorithmus: PPO (Proximal Policy Optimization), Mischung aus Policy und Value Function
+- Architektur-Reihenfolge: MLP → GRU → Transformer
+- Start mit 2 Spielern; Skalierung auf mehr Spieler erfordert stärkere Architektur (laut Claude)
+- Library-Referenz: Stable Baselines 3 für RL-Implementierungen
+- Eigene Implementierung zuerst, danach fertige Library zum Vergleich
+
+# Markov-Problem und State-Design
+
+- Monopoly ist fast Markovian, mit Ausnahmen:
+    - Dreifach-Pasch → Gefängnis (braucht History)
+    - Ereignis-/Schatzkarten (Reihenfolge im Stapel unbekannt)
+    - Spieler-Personality über Zeit
+- Nicht-Markovian-Probleme lösbar durch Infos in den State packen
+    - Risiko: Curse of Dimensionality bei zu vielen Features
+- Spieler-Personality als zweiter Schritt, nicht im MVP
+
+# Game State Definition
+
+- Observable State-Felder:
+    - Positionen aller Spieler
+    - Besitz der Properties (inkl. Häuser/Hotels)
+    - Kontostand aller Spieler
+    - Wer dran ist
+    - Gefängnis-Status (Turns im Gefängnis, 0 = nicht drin)
+    - Anzahl Päsche in aktuellem Zug
+    - Ereignis- und Schatzkarten-Stapel (Community Cards / Treasure Cards)
+    - Property-Zugehörigkeit zu Straßen (Farben)
+- Karten-Reihenfolge im Stapel: Spieler weiß nichts (most simplistic setup)
+- Turn-Struktur: Turn → mehrere Dice Rolls → je eine Sequence of Actions
+    - Würfeln ist eine Action; gewürfelte Zahl Teil des Observable State
+- Free-Parking-Geld-Regel: keine echte Regel, wird nicht implementiert
+
+# Vereinfachtes Ruleset (MVP)
+
+- Rausgelassen für den Start:
+    - Trading
+    - Bidding / Auctions
+    - Hypotheken
+- Sofortiger Verlust, wenn kein Cash für Miete vorhanden
+- Masking für illegale Actions (z.B. kein Haus kaufen ohne volle Straße)
+- Rule-based Agents als Gegner für Move Diversity (verhindert Overfitting auf sich selbst)
+- PPO spielt auch gegen frühere Versionen von sich selbst
+- Reward-Design: investiertes Geld in Straßen höher gewichten als Cash auf dem Konto
+
+# Infrastruktur und nächste Schritte
+
+- Compute:
+    - Laptops für MLP, ggf. Antonijs PC (RTX 2080 Super, Ryzen 7, ~300–500W)
+    - Julia-Cluster als Fallback für schwerere Jobs (1 GPU, keine 50 Jobs starten)
+- Architektur: Game Engine und Visualisierung trennen (MVC-Prinzip)
+    - Visualisierung: Monopoly-Kit auf Figma gefunden, vibe-coden
+- Ticketsystem: GitHub Issues mit Projekten
+- Alle sind im Repo
+
+# Next Steps
+
+- **Ruleset raussuchen und Regelgraph in Claude erstellen** (Antoni)Graph zeigt Regeln und deren Abhängigkeiten, macht Masking-Logik direkt ableitbar.
+- **Game Environment vibe-coden** (Antoni)Game State als Data Structure implementieren, als Basis für Visualisierung und Game Engine.
+- **Game State-Dokumentation ins Repo packen**Raphaels Zusammenfassung von heute als Grundlage für das morgige Meeting.
+- **PPO-Tutorial durcharbeiten (alle)**Gemeinsames Grundverständnis vor der Implementierung sicherstellen.
+
+---
+
+---
+# Offene Punkte (Team-Entscheidung)
+
+- **Observation-Features „Exposure“ (Q15)**: Soll der Agent explizit sehen, welche Miete er auf jedem Feld zahlen würde und wie hoch die erwartete Miete beim nächsten Wurf ist (2W6-Wahrscheinlichkeiten ab aktueller Position)?
+    - Pro: schnelleres, stabileres Lernen – der Agent muss Miete nicht erst aus Besitz + Bebauung + Mietentabelle ableiten
+    - Contra: mehr Inputs, eigenes Vorwissen wird „eingebaut“
+    - Vorschlag: Ablation fürs Paper/Report – Training mit vs. ohne diese Features vergleichen
+    - Im Code als optionale Feature-Gruppe `exposure` in `encode_baseline()` vorhanden, standardmäßig aus

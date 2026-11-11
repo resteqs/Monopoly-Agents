@@ -218,3 +218,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Viewer
+viewer/node_modules/
+viewer/dist/
+
+# Training outputs (use W&B artifacts instead)
+runs/
+wandb/
+checkpoints/
+*.pt
+*.pth
+*.ckpt

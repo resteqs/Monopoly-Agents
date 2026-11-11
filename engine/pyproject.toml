@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "monopoly"
+version = "0.2.0"
+description = "Reference engine for a simplified 2-player German-edition Monopoly (RL training + replays)"
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "ruff>=0.17.4",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["monopoly"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
