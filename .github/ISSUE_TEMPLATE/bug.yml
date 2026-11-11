@@ -1,5 +1,5 @@
 name: Bug
-description: Something behaves differently from the rules or the spec
+description: Something behaves differently from the rules or the spec. Add the for-ai label to delegate the fix to Claude.
 labels: ["type:bug"]
 body:
   - type: textarea

@@ -1,5 +1,5 @@
-name: Task
-description: A small, self-contained piece of work (≤ 1–3 days)
+name: Infrastructure task
+description: Engine, viewer, tooling or docs work (≤ 1–3 days). Add the for-ai label to delegate it to Claude.
 labels: ["type:task"]
 body:
   - type: textarea
@@ -10,10 +10,24 @@ body:
     validations:
       required: true
   - type: textarea
+    id: training
+    attributes:
+      label: Training impact
+      description: What changes for the RL code (observations, actions, rewards, speed)? "none" is a valid answer.
+      value: none
+    validations:
+      required: true
+  - type: textarea
+    id: contract
+    attributes:
+      label: Contract impact
+      description: Does this change docs/game_state.md (state, actions, events, replay schema)? Then agree on it here first.
+      value: none
+  - type: textarea
     id: acceptance
     attributes:
-      label: Acceptance criteria
-      description: Testable checks. When are we done?
+      label: Done when
+      description: Testable checks.
       value: |
         - [ ] 
     validations:
@@ -22,12 +36,12 @@ body:
     id: area
     attributes:
       label: Area
-      options: [engine, viewer, rl, docs]
+      options: [engine, viewer, docs, tooling]
     validations:
       required: true
   - type: textarea
     id: blocked
     attributes:
       label: Blocked by
-      description: Issues that must be finished first (e.g. #12), or "none".
+      description: Issues that must be finished first (e.g. #12), or "none". After creating the issue, also add each one under **Relationships → Blocked by** in the sidebar, so it shows as a badge on the board. Text alone gets lost.
       value: none
